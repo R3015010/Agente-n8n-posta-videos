@@ -1,0 +1,227 @@
+{
+  "name": "Ia cria cortes e posta automático",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "Parte do Submagic (gerador de video/cortes)\n",
+        "height": 240,
+        "width": 588,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        480
+      ],
+      "id": "21378625-e5bf-4064-8b74-51411f31b6e3",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1GcIt7V08ISIrVykg_y6uTSGwy5zGy4E_",
+          "mode": "list",
+          "cachedResultName": "submagic-videos",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1GcIt7V08ISIrVykg_y6uTSGwy5zGy4E_"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        48,
+        560
+      ],
+      "id": "fe6cf85f-1f0d-49b6-8d8d-62ccd54d763c",
+      "name": "Google Drive Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "HkiFMvdOiD9KLzxr",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.submagic.co/v1/projects",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"videoUrl\": \"{{ $json.webContentLink }}\",\n    \"language\": \"en\",\n    \"title\": \"My Video\",\n    \"magicZooms\": true,\n    \"magicBrolls\": true,\n    \"magicBrollsPercentage\": 50,\n    \"webhookUrl\": \"YOUR_n8n_WEBHOOK\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        288,
+        560
+      ],
+      "id": "7ce22b41-4df4-49c4-a742-4d94639518a8",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "606f0034-53b2-496a-ab21-40ee775e6626",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        48,
+        304
+      ],
+      "id": "a41adfcb-9df0-4e08-8ed2-dc1dd9b64e92",
+      "name": "Webhook",
+      "webhookId": "606f0034-53b2-496a-ab21-40ee775e6626"
+    },
+    {
+      "parameters": {
+        "name": "=[Exported]-{{ $json.body.title }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1DyCp_CAu5-MjwFrk-HZ2vTpNvaMuVQOc",
+          "mode": "list",
+          "cachedResultName": "submagic-exports",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1DyCp_CAu5-MjwFrk-HZ2vTpNvaMuVQOc"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        528,
+        64
+      ],
+      "id": "a1b54b57-4497-4ad1-a5da-b0a6d42f321d",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "HkiFMvdOiD9KLzxr",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.body.downloadUrl }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        272,
+        304
+      ],
+      "id": "02487d12-a6fe-46b5-bb10-49180cc8cec4",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "operation": "upload",
+        "title": "Short Videos",
+        "regionCode": "GB",
+        "categoryId": "24",
+        "options": {
+          "description": "Description text",
+          "privacyStatus": "private"
+        }
+      },
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        528,
+        304
+      ],
+      "id": "dc56cb39-1549-4902-9549-1aab263e9556",
+      "name": "Upload a video"
+    },
+    {
+      "parameters": {
+        "content": "envia videos do Submagic para Google Drive e entao para YouTube",
+        "height": 460,
+        "width": 740,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "09694986-b0cd-4b2d-b190-3f13a25cddc4",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upload a video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "041b8250-9c0a-4c99-9660-1ecddd45e6fb",
+  "meta": {
+    "instanceId": "4e3f81887578d970869729da3e4c46b8e39a5d4b4561e56b29d2db6fb3199461"
+  },
+  "id": "HnTaIdxKucmBvygg8Ede7",
+  "tags": []
+}
